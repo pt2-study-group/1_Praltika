@@ -1,2 +1,3 @@
 # 1_Praltika
 AAAAAAAAAAAAAAA?
+Влад уже выехал за мной...
