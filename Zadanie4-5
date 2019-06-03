@@ -1,0 +1,178 @@
+#include <iostream>
+using namespace std;
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//																																				   //
+// Author               : pt206																												       //
+// Day 				    : 20.05.2019																											   //
+// file name            : main.cpp																												   //
+//																																				   //
+// ------------------------------------------------------------------------------------------------------------------------------------------------//		
+// A																																			   //
+//              _____           _      _     _ _																								   //
+//             /  __ \         | |    | |   (_) |																								   //
+//             | /  \/ ___   __| | ___| |    _| |_ ___																							   //
+//             | |    / _ \ / _  |/ _ \ |   | | __/ _ )																							   //
+//             | \__/\ (_) | (_| |  __/ |___| | ||  __/																							   //
+//              \____/\___/ \__,_|\___\_____/_|\__\___|																							   //
+//																																				   //
+//                                                  F i l e																						   //
+//																																				   //
+//     Задание повышенной сложности.																											   //
+//     Разработайте и реализуйте программу для шифрования перестановочным шифром Скитала.   													   //
+//     Зашифрование и расшифрование реализовать в виде отдельных функций. 																		   //
+//     В качестве ключа шифрования использовать длину окружности Скитала (в символах). 															   //
+//     Для функции зашифрования входные данные: строка текста, ключ. 																			   //
+//     Строка текста должна состоять только из прописных символов английского алфавита, при несоответствии сигнализировать об ошибке. 			   //
+//     Ключ — целое положительное число, не превышающее половины длины текста, при несоответствии сигнализировать об ошибке. 					   //
+//     Выходные данные: строка шифротекста. 																									   //
+//     Для функции зашифрования входные данные: строка шифротекста, ключ. 																		   //
+//     Строка шифротекста должна состоять только из прописных символов английского алфавита, при несоответствии сигнализировать об ошибке. 		   //
+//     Ключ — целое положительное число, не превышающее половины длины шифротекста, при несоответствии сигнализировать об ошибке. 				   //
+//     Выходные данные: строка текста. 																											   //
+//																																				   //
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+std::string encrypt(const std::string in, int key);
+std::string decrypt(const std::string in, int key);
+
+int main(int argc, char **argv)
+{
+	cout << "Введите ключ: ";
+	int key;
+	cin >> key;
+	string private_message = "aaabbbcccdddeeefff";
+	cin >> private_message;
+	private_message = encrypt(private_message, key);
+	cout << "privat msg: " << private_message << endl;
+	private_message = decrypt(private_message, key);
+	cout << "decode msg: " << private_message << endl;
+	return 0;
+	
+}
+
+string encrypt(const std::string  in, int key) {
+	int array_size = in.length();
+{
+	//first try-catch
+	if (key > array_size/2) {
+		cout << "Error encrypting! key is very big for this message!" << endl;
+		exit(1);
+	}
+	//second try-catch
+	for (char c : in) {
+		if (c >'z' ||  c < 'a') {
+			cout << "Error encrypting! find unknown chars!" << endl;
+			exit(1);
+		}
+	}
+}
+	//logic
+	int array_height = (array_size/key) + ((array_size%key > 0) ? 1 : 0);
+	
+	//create a matrix
+	char ** matrix = new char*[array_height]; for (int i =0; i<array_height; i++) matrix[i] = new char[key];
+	
+	
+	for (int i = 0; i < key; i++) {
+		for (int j = 0; j < array_height; j++) {
+			matrix[j][i] = '\0';
+		}
+	}
+	//fill matrix
+
+	
+	for (int i = 0; i < array_size; i++) {
+		matrix[i/key][i%key] = in[i];
+	}
+
+
+
+	//read matrix in return arg
+	std::string output;
+	
+	for (int j = 0; j < key; j++) {
+		for (int i = 0; i < array_height; i++) {
+			if (matrix[i][j] != '\0') {
+				output+=matrix[i][j];
+			}
+	
+		}
+	}
+	//allow mem
+	for (int i = 0; i < array_height; i++) delete[] matrix[i];
+	delete[] matrix;
+	
+	return output;
+}
+
+string decrypt(const std::string  in, int key) {
+	int array_size = in.length();
+
+	//first try-catch
+	if (key > array_size/2) {
+		cout << "Error decrypting! key is very big for this message!" << endl;
+		exit(1);
+	}
+	//second try-catch
+	for (char c : in) {
+		if (c >'z' ||  c < 'a') {
+			cout << "Error decrypting! find unknown chars!" << endl;
+			exit(1);
+		}
+	}
+	//logic
+	int array_height = (array_size/key) + ((array_size%key > 0) ? 1 : 0);
+	
+	//create a matrix
+	char ** matrix = new char*[array_height]; for (int i =0; i<array_height; i++) matrix[i] = new char[key];
+	
+	//fill matrix
+	for (int i = 0; i < key; i++) {
+		for (int j = 0; j < array_height; j++) {
+			matrix[j][i] = '\0';
+		}
+	}
+	
+	
+	
+	int star_counter = (in.length()%key > 0) ? key - in.length()%key : 0;
+	for (int i = 0; i < star_counter; i++) {
+		matrix[array_height-1][key -1 -i] = '*';
+	}
+	
+	
+	
+	
+	for (int i = 0, char_id = 0; i < key; i++) {
+		for (int j = 0; j < array_height; j++) {
+			if (char_id < in.length() && matrix[j][i] != '*') {
+				matrix[j][i] = in.at(char_id);
+				char_id++;
+			}
+			
+		}
+	}
+	for (int i = 0; i < star_counter; i++) {
+		matrix[array_height-1][key -1 -i] = '\0';
+	}
+
+
+	//read matrix in return arg
+	std::string output;
+	for (int j = 0; j < array_height; j++) {
+		for (int i = 0; i < key; i++) {
+			if (matrix[j][i] != '\0') {
+				output+=matrix[j][i];
+			}
+		}
+	}
+	
+	//allow mem
+	for (int i = 0; i < array_height; i++) delete[] matrix[i];
+	delete[] matrix;
+	
+	return output;
+}
